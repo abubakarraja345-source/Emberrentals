@@ -1,0 +1,6 @@
+{
+  "name": "Ember Rentals",
+  "description": "Pakistan's finest collection of luxury apartments, penthouses, resorts, glamps, and farmhouses.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

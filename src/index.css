@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", sans-serif;
+  
+  --color-gold: #c9a24e;
+  --color-gold-light: #e8ce8f;
+  --color-gold-deep: #8a6423;
+  --color-charcoal: #08080a;
+  --color-charcoal-light: #111013;
+  --color-panel: rgba(255, 255, 255, 0.035);
+  --color-panel-strong: rgba(20, 18, 15, 0.86);
+  --color-line: rgba(232, 206, 143, 0.14);
+  --color-line-strong: rgba(232, 206, 143, 0.3);
+  --color-ink: #f4efe3;
+  --color-muted-gold: #a79a82;
+  --color-muted-soft: #7d7261;
+}
+
+/* Custom global overrides */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-charcoal);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .serif-font {
+  font-family: var(--font-serif);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #090909;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--color-gold), var(--color-gold-light));
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-light);
+}
+
