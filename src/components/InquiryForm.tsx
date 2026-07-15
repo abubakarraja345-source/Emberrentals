@@ -82,7 +82,7 @@ export default function InquiryForm({ properties, prefilledProperty = "" }: Inqu
     setStatus({ type: null, text: "" });
 
     // Web3Forms Access Key
-    const accessKey = "ea284f84-14e6-4467-a39f-421a353fdbe6";
+    const accessKey = "14c583bd-7044-4407-a5f1-a69ef6c85ecf";
 
     const formData = new FormData();
     formData.append("access_key", accessKey);
