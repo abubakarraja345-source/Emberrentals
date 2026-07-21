@@ -313,15 +313,15 @@ export const LEADERS: Leader[] = [
     name: "Hassan Gul",
     role: "Chief Executive Officer",
     bio: "Orchestrating seamless operations, guest services, and pristine property maintenance so that every reservation transcends standard lodging.",
-    image: "https://i.postimg.cc/Bnc1ctNv/IMG-5545.jpg",
-    instagram: "https://www.instagram.com/hasssanngul/?hl=en"
+    image: "https://i.postimg.cc/vm2wW5wh/hassan.jpg",
+    instagram: "https://www.instagram.com/hassanngulbnb?igsh=MTZqMTBvazdwdXo1bg=="
   },
   {
     id: "zia",
     name: "Zia Tufail",
     role: "Chief Business Officer",
     bio: "Cultivating elite real estate alliances and driving expansion footprints to put Ember Rentals in Pakistan's most scenic and high-end locations.",
-    image: "https://i.postimg.cc/Bnc1ctNv/IMG-5545.jpg",
+    image: "https://i.postimg.cc/q7R9Mg6D/Zia.jpg",
     instagram: "https://www.instagram.com/ziaullahtufail?igsh=MWs4bDE0bjQ3cTUwMw=="
   },
   {
