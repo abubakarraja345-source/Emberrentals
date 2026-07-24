@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, MessageCircle, MapPin, Users, Sparkles, ArrowLeftRight, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageCircle, MapPin, Users, Sparkles, ArrowLeftRight, Share2, Play, Video } from "lucide-react";
 import { Property } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import PropertyDetailModal from "./PropertyDetailModal";
+import { parseMediaList, parseAmenities } from "../utils/mediaUtils";
 
 interface PropertyCardProps {
   property: Property;
@@ -25,27 +26,31 @@ export default function PropertyCard({
   const [copied, setCopied] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  // Parse images. If property.image is empty or null, we use fallback.
-  // Many Google Sheet rows have comma-separated image URLs.
-  const imagesList = property.images && property.images.length > 0 
-    ? property.images 
-    : (property.image || "")
-        .split(",")
-        .map((url) => url.trim())
-        .filter(Boolean);
+  // Parse media list (images and videos)
+  const mediaItems = parseMediaList(
+    property.images && property.images.length > 0 ? property.images : property.image
+  );
 
-  const finalImages = imagesList.length > 0 
-    ? imagesList 
-    : ["https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80"];
+  const activeMedia = mediaItems[currentImgIndex] || mediaItems[0] || {
+    url: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80",
+    isVideo: false
+  };
+
+  // Parse amenities
+  const allAmenities = property.amenities && property.amenities.length > 0 
+    ? property.amenities 
+    : parseAmenities(property);
 
   const handleNextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentImgIndex((prev) => (prev + 1) % finalImages.length);
+    e.preventDefault();
+    setCurrentImgIndex((prev) => (prev + 1) % mediaItems.length);
   };
 
   const handlePrevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentImgIndex((prev) => (prev - 1 + finalImages.length) % finalImages.length);
+    e.preventDefault();
+    setCurrentImgIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
   };
 
   const formatDate = (dateStr: string) => {
@@ -128,31 +133,66 @@ export default function PropertyCard({
         onClick={() => setIsDetailOpen(true)}
         className="group bg-charcoal-light border border-line hover:border-line-strong rounded-2xl overflow-hidden shadow-xl hover:shadow-[0_20px_45px_rgba(0,0,0,0.6),0_0_0_1px_rgba(232,206,143,0.15)] flex flex-col h-full transition-all duration-300 cursor-pointer"
       >
-      {/* Media / Images Carousel */}
+      {/* Media / Images & Videos Carousel */}
       <div className="relative aspect-[4/3] overflow-hidden bg-black/40">
         <div className="absolute inset-0">
-          <img
-            src={finalImages[currentImgIndex]}
-            alt={property.title}
-            loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          />
+          {activeMedia.isVideo ? (
+            <div className="w-full h-full bg-black relative flex items-center justify-center">
+              {activeMedia.embedUrl ? (
+                <iframe
+                  src={activeMedia.embedUrl}
+                  title={`${property.title} video tour`}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  onClick={(e) => e.stopPropagation()}
+                />
+              ) : (
+                <video
+                  src={activeMedia.url}
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full h-full object-cover"
+                />
+              )}
+              {/* Video Tour Badge Overlay */}
+              <div className="absolute bottom-3 left-3 z-10 bg-black/80 backdrop-blur-md border border-gold/40 text-gold-light text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-md pointer-events-none">
+                <Video className="w-3.5 h-3.5 text-gold animate-pulse" />
+                <span>Video Tour</span>
+              </div>
+            </div>
+          ) : (
+            <img
+              src={activeMedia.url}
+              alt={property.title}
+              loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80";
+              }}
+            />
+          )}
         </div>
 
         {/* Dynamic Navigation Arrows */}
-        {finalImages.length > 1 && (
+        {mediaItems.length > 1 && (
           <>
             <button
               onClick={handlePrevImage}
               className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-gold-light border border-white/10 flex items-center justify-center cursor-pointer transition-opacity opacity-0 group-hover:opacity-100 focus:opacity-100 z-10"
-              aria-label="Previous Image"
+              aria-label="Previous Media"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={handleNextImage}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-gold-light border border-white/10 flex items-center justify-center cursor-pointer transition-opacity opacity-0 group-hover:opacity-100 focus:opacity-100 z-10"
-              aria-label="Next Image"
+              aria-label="Next Media"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -160,13 +200,17 @@ export default function PropertyCard({
         )}
 
         {/* Carousel Indicator Dots */}
-        {finalImages.length > 1 && (
+        {mediaItems.length > 1 && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-            {finalImages.map((_, idx) => (
+            {mediaItems.map((item, idx) => (
               <span
                 key={idx}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  idx === currentImgIndex ? "w-4.5 bg-white" : "w-1.5 bg-white/40"
+                  idx === currentImgIndex 
+                    ? "w-4.5 bg-gold" 
+                    : item.isVideo 
+                      ? "w-2 bg-gold/50" 
+                      : "w-1.5 bg-white/40"
                 }`}
               />
             ))}
@@ -210,15 +254,21 @@ export default function PropertyCard({
         </p>
 
         {/* Amenities Highlights */}
-        <div className="flex flex-wrap gap-2 mb-5 border-t border-line/50 pt-4">
-          <span className="text-[10px] bg-white/[0.03] border border-line/60 px-2.5 py-1 rounded-full text-muted-gold font-medium flex items-center gap-1">
-            <Sparkles className="w-2.5 h-2.5 text-gold" />
-            {property.amenity1 || "Verified Luxury"}
-          </span>
-          <span className="text-[10px] bg-white/[0.03] border border-line/60 px-2.5 py-1 rounded-full text-muted-gold font-medium flex items-center gap-1">
-            <Sparkles className="w-2.5 h-2.5 text-gold" />
-            {property.amenity2 || "Concierge Support"}
-          </span>
+        <div className="flex flex-wrap gap-1.5 mb-5 border-t border-line/50 pt-4">
+          {allAmenities.slice(0, 3).map((amenity, idx) => (
+            <span
+              key={idx}
+              className="text-[10px] bg-white/[0.03] border border-line/60 px-2.5 py-1 rounded-full text-muted-gold font-medium flex items-center gap-1"
+            >
+              <Sparkles className="w-2.5 h-2.5 text-gold shrink-0" />
+              {amenity}
+            </span>
+          ))}
+          {allAmenities.length > 3 && (
+            <span className="text-[10px] bg-gold/10 border border-gold/20 px-2 py-1 rounded-full text-gold-light font-bold">
+              +{allAmenities.length - 3} more
+            </span>
+          )}
         </div>
 
         {/* Call to Action Buttons */}

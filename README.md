@@ -2,7 +2,7 @@
 
 Ember Rentals is a high-end, responsive, and fully integrated React & Vite-based web portal designed for handpicked luxury stays, boutique residences, farmhouses, and elite penthouses across Pakistan's major destinations (Islamabad, Lahore, Karachi, Rawalpindi, Murree, and Nathia Gali). 
 
-The platform supports live inventory updates synchronized directly from a Google Sheet (via a Sheetbest API bridge) with elegant client-side fallbacks, full cross-property comparison modules, an interactive search engine, and a persistent live WhatsApp Concierge integration.
+The platform supports live inventory updates synchronized directly from a Google Sheet (via a Sheetbest API bridge) with elegant client-side fallbacks, full cross-property comparison modules, an interactive search engine, media carousels with video playback support, and a persistent live WhatsApp Concierge integration.
 
 ---
 
@@ -17,11 +17,13 @@ The platform supports live inventory updates synchronized directly from a Google
 ## 🚀 Key Features
 
 1. **Dynamic Inventory Synchronization**: Real-time property fetching from a Google Sheet with automatic failovers.
-2. **Smart Type Mapping**: Input simple lowercase category labels in the sheet (like `guesthouse`, `penthouse`, or `farmhouse`) and watch them dynamically transform into beautifully formatted categories with custom-tailored emojis.
-3. **Advanced Filtering & Sort Engine**: Filter dynamically by destinations, stay categories, custom guest capacity ranges, or keyword matches. Sort on demand by prices (low-to-high, high-to-low) or alphabetically.
-4. **Interactive Multi-Property Compare Module**: Compare up to 3 luxury residences side-by-side using a dynamic slide-out floating tray and comparisons of pricing, capacities, and signature amenities.
-5. **Interactive Booking & Inquiry Form**: Built-in reservation concierge forms prefilled with listing titles, supporting calendar dates and guest volumes, direct-sending to the booking team.
-6. **Continuous Live WhatsApp Chat Integration**: Floating premium action button linking guests straight to live 24/7 concierge operators.
+2. **Photos & Video Gallery Support**: Carousel supporting multiple photos and embedded videos (YouTube, Vimeo, MP4, WebM) or local media files (`photos/karachi.jpg`).
+3. **Smart Category Mapping**: Input simple lowercase category labels in the sheet (like `guesthouse`, `penthouse`, or `farmhouse`) and watch them dynamically transform into beautifully formatted categories with custom-tailored badges.
+4. **Dynamic Amenities Engine**: Parse comma-separated amenities or individual `amenity1` and `amenity2` columns into glowing highlight badges.
+5. **Advanced Filtering & Sort Engine**: Filter dynamically by destinations, stay categories, custom guest capacity ranges, or keyword matches. Sort on demand by prices (low-to-high, high-to-low) or alphabetically.
+6. **Interactive Multi-Property Compare Module**: Compare up to 3 luxury residences side-by-side using a dynamic slide-out floating tray comparing pricing, guest capacities, categories, and signature amenities.
+7. **Interactive Booking & Inquiry Form**: Built-in reservation concierge forms prefilled with listing titles, calendar dates, and guest volumes.
+8. **Continuous Live WhatsApp Chat Integration**: Floating premium action button linking guests straight to live 24/7 concierge operators.
 
 ---
 
@@ -39,40 +41,46 @@ Format **Row 1** of your Google Sheet with the exact column headers below:
 | **city** | `location` | Required | `Islamabad` |
 | **type** | `category` | Required | `guesthouse` |
 | **price** | `rate` | Required | `PKR 35,000 / night` |
-| **image** | `images`, `photo` | Required | `https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format...` |
+| **image** | `images`, `photo`, `photos`, `video`, `videos` | Required | `photos/karachi.jpg, https://youtube.com/watch?v=dQw4w9WgXcQ` |
 | **maxGuests** | `capacity`, `guests` | Optional | `6` |
-| **amenity1** | `highlight1` | Optional | `Private Infinity Pool` |
-| **amenity2** | `highlight2` | Optional | `24/7 Dedicated Butler` |
+| **amenities** | `amenity1`, `amenity2`, `highlights` | Optional | `Private Infinity Pool, 24/7 Dedicated Butler, High-Speed WiFi` |
 | **desc** | `description` | Optional | `Floor-to-ceiling city views with smart home automation.` |
 
 ### 2. Column Integration Features
-- **Smart Category Formatting**: You can write simple, fast category keys inside the **type** or **category** column. Our smart engine maps them dynamically:
+- **Smart Category Formatting**: Write simple, fast category keys inside the **type** or **category** column:
   - `guesthouse` or `guest house` $\rightarrow$ **Luxury Guest Houses** 🏡
   - `penthouse` or `pent` $\rightarrow$ **Elite Penthouses** 🏙️
   - `farmhouse` or `farm house` $\rightarrow$ **Private Farmhouses** 🚜
   - `apartment` or `flat` $\rightarrow$ **Luxury Apartments** 🏨
   - `resort` $\rightarrow$ **Boutique Resorts** 🏝️
   - `glamp` $\rightarrow$ **Scenic Glamps** ⛰️
-- **Carousel Slideshows**: To show multiple photos in the property's card slider, paste public photo links inside the **image** column separated by a single comma:
-  `https://site.com/pic1.jpg, https://site.com/pic2.jpg, https://site.com/pic3.jpg`
+- **Multiple Photos & Videos**: Separate multiple media links with commas:
+  `photos/karachi.jpg, https://youtube.com/watch?v=dQw4w9WgXcQ, photos/bedroom.jpg`
 
 ---
 
-## 🖼️ How to Use Local Photos & Folders
+## 🖼️ How to Use Local Photos & Videos
 
-If you want to use local images from your project instead of pasting long internet URLs (like `https://...`) in your Google Sheet, follow these simple steps:
+If you want to use local photos or videos stored in your project instead of external web links:
 
-1. **Place your photos inside the public folder**:
-   In Vite, any static files placed inside a folder named `public` at the root of your project are served directly.
-   - Create a directory named `public` at the root of the project (if it doesn't already exist).
-   - Inside it, create your folder structure, e.g., `public/photos/`.
-   - Put your image there: `public/photos/karachi.jpg`.
+1. **Place media files inside the `public` folder**:
+   - Save your photos/videos in `public/photos/` (e.g., `public/photos/karachi.jpg`, `public/photos/tour.mp4`).
 
 2. **Reference them in your Google Sheet**:
-   Since the `public` directory is mapped directly to the server root, you reference files *without* the word `public` in the path.
-   - Enter this exact string in your Google Sheet **image** column:
-     `photos/karachi.jpg` (or `/photos/karachi.jpg`)
-   - It will resolve perfectly and display beautifully across the web portal!
+   - Reference files relative to root (without writing `public`):
+     `photos/karachi.jpg` or `/photos/karachi.jpg` or `photos/tour.mp4`
+   - You can mix local photos, web URLs, and YouTube video links in the `image` column separated by commas!
+
+---
+
+## 📹 How to Add Property Videos
+
+You can add videos to any listing by including video URLs in the `image` or `video` column in your Google Sheet:
+- **YouTube videos**: `https://www.youtube.com/watch?v=YOUR_VIDEO_ID` or `https://youtu.be/YOUR_VIDEO_ID`
+- **Vimeo videos**: `https://vimeo.com/YOUR_VIDEO_ID`
+- **Direct Video Files (MP4 / WebM)**: `https://example.com/video.mp4` or local path `photos/tour.mp4`
+
+When a video is detected, a **VID** badge and Play icon are automatically overlaid on the thumbnail, and clicking it streams the video directly inside the Property Detail Modal!
 
 ---
 

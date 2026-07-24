@@ -50,10 +50,10 @@ export default function SheetHelpModal({ isOpen, onClose }: SheetHelpModalProps)
     },
     {
       header: "image",
-      fallbacks: "images, photo",
+      fallbacks: "images, photo, photos, video, videos",
       required: true,
-      example: "https://images.unsplash.com/... , https://images.unsplash.com/...",
-      desc: "Paste public image URLs. To unlock multiple gallery slide images on the card, separate multiple URLs with commas (,)."
+      example: "photos/karachi.jpg, https://youtube.com/watch?v=dQw4w9WgXcQ",
+      desc: "Paste photo/video links separated by commas (,). Supports web images, local project images (e.g. photos/karachi.jpg), YouTube videos, Vimeo links, or direct MP4 video files!"
     },
     {
       header: "maxGuests",
@@ -63,18 +63,11 @@ export default function SheetHelpModal({ isOpen, onClose }: SheetHelpModalProps)
       desc: "Maximum number of guests allowed. If blank, it will guess based on bedroom keywords."
     },
     {
-      header: "amenity1",
-      fallbacks: "highlight1",
+      header: "amenities",
+      fallbacks: "amenity1, amenity2, highlights",
       required: false,
-      example: "Private Infinity Pool",
-      desc: "First premium highlight badge shown on the card (Default: WiFi Included)."
-    },
-    {
-      header: "amenity2",
-      fallbacks: "highlight2",
-      required: false,
-      example: "24/7 Dedicated Butler",
-      desc: "Second premium highlight badge shown on the card (Default: Concierge Care)."
+      example: "Private Infinity Pool, 24/7 Dedicated Butler, High-Speed WiFi, Jacuzzi",
+      desc: "Comma-separated list of stay amenities or individual amenity1 / amenity2 columns."
     },
     {
       header: "desc",

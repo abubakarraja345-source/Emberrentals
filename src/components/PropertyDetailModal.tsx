@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { X, MapPin, Users, Sparkles, Send, CheckCircle2, AlertTriangle, MessageCircle, ChevronLeft, ChevronRight, Calendar, User, Mail, Phone, MessageSquare, Info } from "lucide-react";
+import { X, MapPin, Users, Sparkles, Send, CheckCircle2, AlertTriangle, MessageCircle, ChevronLeft, ChevronRight, Calendar, User, Mail, Phone, MessageSquare, Info, Play, Video } from "lucide-react";
 import { Property } from "../types";
 import { motion, AnimatePresence } from "motion/react";
+import { parseMediaList, parseAmenities } from "../utils/mediaUtils";
 
 interface PropertyDetailModalProps {
   property: Property;
@@ -21,6 +22,10 @@ export default function PropertyDetailModal({
   guestsRange = ""
 }: PropertyDetailModalProps) {
   const [activeImgIndex, setActiveImgIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [failedMedia, setFailedMedia] = useState<Record<number, boolean>>({});
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -43,29 +48,57 @@ export default function PropertyDetailModal({
       setMessage(`Hello, I am interested in booking ${property.title} in ${property.city}. Please provide availability and booking terms.`);
       setStatus({ type: null, text: "" });
       setActiveImgIndex(0);
+      setSlideDirection(0);
+      setFailedMedia({});
     }
   }, [isOpen, property, checkinDate, checkoutDate, guestsRange]);
 
   if (!isOpen) return null;
 
-  // Parse images. If property.image is empty or null, we use fallback.
-  const imagesList = property.images && property.images.length > 0 
-    ? property.images 
-    : (property.image || "")
-        .split(",")
-        .map((url) => url.trim())
-        .filter(Boolean);
+  // Parse media (images & videos)
+  const rawMediaItems = parseMediaList(
+    property.images && property.images.length > 0 ? property.images : property.image
+  );
 
-  const finalImages = imagesList.length > 0 
-    ? imagesList 
-    : ["https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80"];
+  // Filter out or fix failed media
+  const mediaItems = rawMediaItems.map((item, index) => {
+    if (failedMedia[index]) {
+      return {
+        url: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80",
+        isVideo: false,
+        type: 'image' as const
+      };
+    }
+    return item;
+  });
 
-  const handleNextImage = () => {
-    setActiveImgIndex((prev) => (prev + 1) % finalImages.length);
+  const activeMedia = mediaItems[activeImgIndex] || mediaItems[0] || {
+    url: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80",
+    isVideo: false,
+    type: 'image'
   };
 
-  const handlePrevImage = () => {
-    setActiveImgIndex((prev) => (prev - 1 + finalImages.length) % finalImages.length);
+  // Parse dynamic amenities list
+  const allAmenities = property.amenities && property.amenities.length > 0 
+    ? property.amenities 
+    : parseAmenities(property);
+
+  const handleNextImage = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    setSlideDirection(1);
+    setActiveImgIndex((prev) => (prev + 1) % mediaItems.length);
+  };
+
+  const handlePrevImage = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    setSlideDirection(-1);
+    setActiveImgIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
   };
 
   const formatDate = (dateStr: string) => {
@@ -162,7 +195,7 @@ export default function PropertyDetailModal({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ type: "spring", duration: 0.4 }}
-          className="relative w-full max-w-6xl bg-charcoal border border-line rounded-3xl overflow-hidden shadow-2xl flex flex-col md:grid md:grid-cols-12 max-h-[90vh] md:max-h-[85vh]"
+          className="relative w-full max-w-6xl bg-charcoal border border-line rounded-3xl overflow-hidden shadow-2xl flex flex-col md:grid md:grid-cols-12 h-[88vh] md:h-[84vh] max-h-[900px]"
         >
           {/* Top aesthetic accent line */}
           <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-gold/20 via-gold to-gold/20 z-10" />
@@ -170,37 +203,101 @@ export default function PropertyDetailModal({
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 border border-white/10 text-ink flex items-center justify-center hover:border-gold-light hover:bg-black/80 transition-all cursor-pointer shadow-lg"
+            className="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-black/70 border border-white/20 text-ink flex items-center justify-center hover:border-gold-light hover:bg-black transition-all cursor-pointer shadow-lg"
             aria-label="Close details modal"
           >
             <X className="w-5 h-5" />
           </button>
 
-          {/* LEFT PANEL: Advanced Image Gallery (5 cols) */}
-          <div className="col-span-12 md:col-span-6 bg-[#09090b] flex flex-col justify-between h-[300px] sm:h-[400px] md:h-full relative overflow-hidden border-b md:border-b-0 md:border-r border-line">
-            
-            {/* Active Large Image Display */}
-            <div className="relative flex-grow overflow-hidden group/modal-gallery flex items-center justify-center bg-black">
-              <img
-                src={finalImages[activeImgIndex]}
-                alt={`${property.title} gallery preview`}
-                className="w-full h-full object-cover transition-all duration-500"
-              />
+          {/* LEFT PANEL: Advanced Image & Video Gallery (6 cols) */}
+          <div 
+            className="col-span-12 md:col-span-6 bg-[#09090b] flex flex-col justify-between h-[320px] sm:h-[380px] md:h-full relative overflow-hidden border-b md:border-b-0 md:border-r border-line shrink-0"
+            onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
+            onTouchEnd={(e) => {
+              if (touchStart === null) return;
+              const touchEnd = e.changedTouches[0].clientX;
+              const diff = touchStart - touchEnd;
+              if (diff > 40) handleNextImage();
+              if (diff < -40) handlePrevImage();
+              setTouchStart(null);
+            }}
+          >
+            {/* Active Display with Smooth Slide Transitions */}
+            <div className="relative flex-grow overflow-hidden group/modal-gallery flex items-center justify-center bg-black min-h-[220px]">
+              <AnimatePresence mode="popLayout" custom={slideDirection} initial={false}>
+                <motion.div
+                  key={activeImgIndex}
+                  custom={slideDirection}
+                  initial={(dir) => ({
+                    x: dir > 0 ? "100%" : dir < 0 ? "-100%" : 0,
+                    opacity: 0
+                  })}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={(dir) => ({
+                    x: dir > 0 ? "-100%" : dir < 0 ? "100%" : 0,
+                    opacity: 0
+                  })}
+                  transition={{ duration: 0.35, ease: "easeInOut" }}
+                  className="w-full h-full flex items-center justify-center bg-black"
+                >
+                  {activeMedia.isVideo ? (
+                    activeMedia.embedUrl ? (
+                      <iframe
+                        src={activeMedia.embedUrl}
+                        title={`${property.title} video`}
+                        className="w-full h-full border-0 min-h-[220px]"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video
+                        src={activeMedia.url}
+                        controls
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        onError={() => {
+                          setFailedMedia(prev => ({ ...prev, [activeImgIndex]: true }));
+                        }}
+                        className="w-full h-full object-contain bg-black max-h-[450px]"
+                      />
+                    )
+                  ) : (
+                    <img
+                      src={activeMedia.url}
+                      alt={`${property.title} gallery preview`}
+                      className="w-full h-full object-cover transition-all duration-300"
+                      onError={() => {
+                        setFailedMedia(prev => ({ ...prev, [activeImgIndex]: true }));
+                      }}
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Video Indicator Tag */}
+              {activeMedia.isVideo && (
+                <div className="absolute bottom-4 left-4 z-20 bg-black/80 backdrop-blur-md border border-gold/40 text-gold-light text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-md pointer-events-none">
+                  <Video className="w-3.5 h-3.5 text-gold animate-pulse" />
+                  <span>Property Video Tour</span>
+                </div>
+              )}
 
               {/* Navigation arrows overlay */}
-              {finalImages.length > 1 && (
+              {mediaItems.length > 1 && (
                 <>
                   <button
                     onClick={handlePrevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 border border-white/10 hover:border-gold-light hover:bg-black/80 text-gold-light flex items-center justify-center cursor-pointer transition-all shadow-md"
-                    aria-label="Previous Image"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/75 border border-white/20 hover:border-gold-light hover:bg-black text-gold-light flex items-center justify-center cursor-pointer transition-all shadow-md z-20"
+                    aria-label="Previous Media"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
                     onClick={handleNextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 border border-white/10 hover:border-gold-light hover:bg-black/80 text-gold-light flex items-center justify-center cursor-pointer transition-all shadow-md"
-                    aria-label="Next Image"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/75 border border-white/20 hover:border-gold-light hover:bg-black text-gold-light flex items-center justify-center cursor-pointer transition-all shadow-md z-20"
+                    aria-label="Next Media"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </button>
@@ -208,8 +305,8 @@ export default function PropertyDetailModal({
               )}
 
               {/* Upper tags indicators */}
-              <div className="absolute top-4 left-4 flex gap-2">
-                <span className="bg-black/60 backdrop-blur-md border border-line text-gold-light text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md flex items-center gap-1">
+              <div className="absolute top-4 left-4 flex gap-2 z-20 pointer-events-none">
+                <span className="bg-black/70 backdrop-blur-md border border-line text-gold-light text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-gold" />
                   {property.city}
                 </span>
@@ -219,38 +316,59 @@ export default function PropertyDetailModal({
               </div>
 
               {/* Guest badge */}
-              <div className="absolute top-4 right-16">
-                <span className="bg-black/60 backdrop-blur-md border border-line text-ink text-[9px] font-semibold px-2.5 py-1 rounded-md flex items-center gap-1">
+              <div className="absolute top-4 right-16 z-20 pointer-events-none">
+                <span className="bg-black/70 backdrop-blur-md border border-line text-ink text-[9px] font-semibold px-2.5 py-1 rounded-md flex items-center gap-1">
                   <Users className="w-3 h-3 text-gold-light" />
                   Max: {property.maxGuests} guests
                 </span>
               </div>
             </div>
 
-            {/* Thumbnail Row Indicator (Only shown if multiple images exist) */}
-            {finalImages.length > 1 && (
-              <div className="bg-[#0e0d11] p-3 border-t border-line overflow-x-auto scrollbar-none flex gap-2 shrink-0">
-                {finalImages.map((img, idx) => (
+            {/* Thumbnail Row Indicator */}
+            {mediaItems.length > 1 && (
+              <div className="bg-[#0e0d11] p-3 border-t border-line overflow-x-auto scrollbar-thin scrollbar-thumb-gold/30 flex gap-2 shrink-0 z-10">
+                {mediaItems.map((item, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setActiveImgIndex(idx)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setSlideDirection(idx > activeImgIndex ? 1 : -1);
+                      setActiveImgIndex(idx);
+                    }}
                     className={`relative w-16 h-12 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
                       idx === activeImgIndex 
-                        ? "border-gold scale-105 shadow-[0_0_8px_rgba(232,206,143,0.3)]" 
+                        ? "border-gold scale-105 shadow-[0_0_8px_rgba(232,206,143,0.4)]" 
                         : "border-transparent opacity-60 hover:opacity-100"
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    {item.isVideo ? (
+                      <div className="w-full h-full bg-black flex items-center justify-center relative">
+                        <Play className="w-4 h-4 text-gold fill-gold" />
+                        <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-[8px] font-mono text-gold-light px-1 rounded">
+                          VID
+                        </span>
+                      </div>
+                    ) : (
+                      <img
+                        src={item.url}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={() => {
+                          setFailedMedia(prev => ({ ...prev, [idx]: true }));
+                        }}
+                      />
+                    )}
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* RIGHT PANEL: Details & Booking Form (7 cols) */}
-          <div className="col-span-12 md:col-span-6 flex flex-col h-[50vh] md:h-full overflow-y-auto">
+          {/* RIGHT PANEL: Scrollable Details & Booking Form (6 cols) */}
+          <div className="col-span-12 md:col-span-6 flex flex-col h-full min-h-0 overflow-y-auto">
             {/* Scroll Container */}
-            <div className="p-6 md:p-8 space-y-6 text-left flex-grow">
+            <div className="p-6 md:p-8 space-y-6 text-left">
               
               {/* Main Titles */}
               <div>
@@ -299,23 +417,18 @@ export default function PropertyDetailModal({
               {/* Premium Highlights */}
               <div>
                 <h4 className="text-[10px] uppercase font-bold tracking-widest text-gold-light mb-2.5">
-                  Included Amenities
+                  Included Amenities ({allAmenities.length})
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  <span className="text-xs bg-gold/10 border border-gold/20 px-3.5 py-1.5 rounded-full text-gold-light font-semibold flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-gold" />
-                    {property.amenity1 || "Verified Luxury"}
-                  </span>
-                  <span className="text-xs bg-gold/10 border border-gold/20 px-3.5 py-1.5 rounded-full text-gold-light font-semibold flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-gold" />
-                    {property.amenity2 || "Concierge Support"}
-                  </span>
-                  <span className="text-xs bg-white/[0.03] border border-line/50 px-3.5 py-1.5 rounded-full text-muted-gold font-medium">
-                    24/7 Security
-                  </span>
-                  <span className="text-xs bg-white/[0.03] border border-line/50 px-3.5 py-1.5 rounded-full text-muted-gold font-medium">
-                    High-Speed WiFi
-                  </span>
+                  {allAmenities.map((amenity, idx) => (
+                    <span
+                      key={idx}
+                      className="text-xs bg-gold/10 border border-gold/25 px-3 py-1.5 rounded-full text-gold-light font-semibold flex items-center gap-1.5"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-gold shrink-0" />
+                      {amenity}
+                    </span>
+                  ))}
                 </div>
               </div>
 

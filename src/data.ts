@@ -44,7 +44,7 @@ export const CATEGORIES: Category[] = [
     id: "apartments",
     type: "Apartment",
     label: "Luxury Apartments",
-    image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+    image: "https://i.postimg.cc/KjGT2Vwy/PHOTO-2026-07-23-21-25-28.jpg",
     startingPrice: "PKR 25,000",
     desc: "Plush spaces, floor-to-ceiling windows, and premier city center locations."
   },
@@ -52,7 +52,7 @@ export const CATEGORIES: Category[] = [
     id: "penthouses",
     type: "Penthouse",
     label: "Elite Penthouses",
-    image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=80",
+    image: "https://i.postimg.cc/qMJ1pBCP/DSC01488.jpg",
     startingPrice: "PKR 75,000",
     desc: "Private rooftops, infinity plunge pools, and uninterrupted skyline vistas."
   },
@@ -60,7 +60,7 @@ export const CATEGORIES: Category[] = [
     id: "resorts",
     type: "Resort",
     label: "Boutique Resorts",
-    image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
+    image: "https://res.cloudinary.com/evekvxms/image/upload/v1784890890/PHOTO-2026-07-23-16-35-01_3_bylu6y.jpg",
     startingPrice: "PKR 45,000",
     desc: "Complete privacy, spa-level baths, and customized butler assistance."
   },
@@ -68,15 +68,15 @@ export const CATEGORIES: Category[] = [
     id: "glamps",
     type: "Glamp",
     label: "Scenic Glamps",
-    image: "https://images.unsplash.com/photo-1533760881669-80db4d7b341a?auto=format&fit=crop&w=800&q=80",
-    startingPrice: "PKR 30,000",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsQw9cWVSokYNswoq7JORqlVgJxeQJ1ijTZo5N0WrLLQ&s=10",
+    startingPrice: "PKR 40,000",
     desc: "Stargazing domes, high-altitude alpine views, and warm fireplaces."
   },
   {
     id: "farmhouses",
     type: "Farmhouse",
     label: "Private Farmhouses",
-    image: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80",
+    image: "https://res.cloudinary.com/evekvxms/image/upload/v1784889116/DSC01372_lvotwk.jpg",
     startingPrice: "PKR 90,000",
     desc: "Expansive green lawns, private BBQ zones, and peaceful countryside air."
   },
@@ -84,7 +84,7 @@ export const CATEGORIES: Category[] = [
     id: "guesthouses",
     type: "Guest House",
     label: "Luxury Guest Houses",
-    image: "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=800&q=80",
+    image: "https://i.postimg.cc/6QBbrhSF/IMG-4680.avif",
     startingPrice: "PKR 15,000",
     desc: "Bespoke hospitality, cozy shared lounges, and homestyle comfort in premier sectors."
   }

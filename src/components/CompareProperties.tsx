@@ -2,6 +2,7 @@ import React from "react";
 import { X, ArrowLeftRight, MessageCircle, MapPin, Users, Sparkles, Trash2 } from "lucide-react";
 import { Property } from "../types";
 import { motion, AnimatePresence } from "motion/react";
+import { parseAmenities } from "../utils/mediaUtils";
 
 interface CompareTrayProps {
   comparedProperties: Property[];
@@ -338,20 +339,22 @@ export function CompareModal({
                     {/* AMENITIES ROW */}
                     <tr className="hover:bg-white/[0.01] transition-colors">
                       <td className="py-4 font-serif text-xs font-semibold text-muted-gold border-b border-line/20 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-gold" /> Primary Highlights
+                        <Sparkles className="w-3.5 h-3.5 text-gold" /> Included Amenities
                       </td>
-                      {comparedProperties.map((p) => (
-                        <td key={p.id} className="px-4 py-4 border-b border-line/20">
-                          <div className="flex flex-col gap-1.5">
-                            <span className="text-[10px] bg-white/[0.03] border border-line px-2 py-0.5 rounded-md text-muted-gold font-medium w-max">
-                              {p.amenity1 || "WiFi Included"}
-                            </span>
-                            <span className="text-[10px] bg-white/[0.03] border border-line px-2 py-0.5 rounded-md text-muted-gold font-medium w-max">
-                              {p.amenity2 || "Concierge Care"}
-                            </span>
-                          </div>
-                        </td>
-                      ))}
+                      {comparedProperties.map((p) => {
+                        const ams = p.amenities && p.amenities.length > 0 ? p.amenities : parseAmenities(p);
+                        return (
+                          <td key={p.id} className="px-4 py-4 border-b border-line/20">
+                            <div className="flex flex-wrap gap-1">
+                              {ams.map((a, i) => (
+                                <span key={i} className="text-[10px] bg-white/[0.03] border border-line/60 px-2 py-0.5 rounded-md text-muted-gold font-medium">
+                                  {a}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                        );
+                      })}
                       {Array.from({ length: Math.max(0, 3 - comparedProperties.length) }).map((_, i) => (
                         <td key={`empty-amenities-${i}`} className="px-4 py-4 border-b border-line/20 text-muted-soft text-xs italic">-</td>
                       ))}

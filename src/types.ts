@@ -5,9 +5,10 @@ export interface Property {
   pricePerNight: number; // For sorting and range checks
   desc: string;
   image: string; // Comma separated or single image
-  images: string[]; // Parsed array of image URLs
+  images: string[]; // Parsed array of image/video URLs
   amenity1?: string;
   amenity2?: string;
+  amenities?: string[]; // Complete parsed amenities array
   city: string;
   type: string; // e.g. Apartment, Penthouse, Resort, Glamp, Farmhouse, Guest House
   maxGuests: number; // Number of guests supported

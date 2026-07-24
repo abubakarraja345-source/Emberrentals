@@ -33,17 +33,23 @@ h1, h2, h3, .serif-font {
 }
 
 /* Scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gold) #090909;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: #090909;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(var(--color-gold), var(--color-gold-light));
+  background: #c9a24e;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gold-light);
+  background: #e8ce8f;
 }
 

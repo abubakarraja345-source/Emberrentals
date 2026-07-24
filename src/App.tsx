@@ -28,6 +28,7 @@ import { CompareTray, CompareModal } from "./components/CompareProperties";
 import SheetHelpModal from "./components/SheetHelpModal";
 import CategoryCard from "./components/CategoryCard";
 import AmenitiesSection from "./components/AmenitiesSection";
+import { parseMediaList, parseAmenities } from "./utils/mediaUtils";
 import { Property, Category, City, Testimonial, Leader } from "./types";
 import { 
   CITIES, 
@@ -119,7 +120,14 @@ export default function App() {
             }
             const price = row.price || row.rate || "PKR 30,000 / night";
             const desc = row.desc || row.description || "Curated stay featuring high-end spaces and exquisite attention to comfort.";
-            const image = row.image || row.images || row.photo || "";
+            
+            // Parse media (images and videos)
+            const rawMedia = row.image || row.images || row.photo || row.photos || row.video || row.videos || "";
+            const mediaItems = parseMediaList(rawMedia);
+            const mediaUrls = mediaItems.map((m) => m.url);
+
+            // Parse amenities
+            const amenitiesList = parseAmenities(row);
             
             // Parse price string to number for range operations if possible
             let pricePerNight = 30000;
@@ -141,20 +149,17 @@ export default function App() {
               else if (tLower.includes("penthouse")) maxGuests = 6;
             }
 
-            const parsedImages = image
-              ? image.split(",").map((url: string) => url.trim()).filter(Boolean)
-              : [];
-
             return {
               id: String(row.id || idx + 1),
               title,
               price,
               pricePerNight,
               desc,
-              image,
-              images: parsedImages,
-              amenity1: row.amenity1 || row.highlight1 || "WiFi Included",
-              amenity2: row.amenity2 || row.highlight2 || "Concierge Care",
+              image: mediaUrls.join(", "),
+              images: mediaUrls,
+              amenity1: amenitiesList[0] || "WiFi Included",
+              amenity2: amenitiesList[1] || "Concierge Care",
+              amenities: amenitiesList,
               city,
               type,
               maxGuests
@@ -366,7 +371,7 @@ export default function App() {
                     transition={{ delay: 0.3 }}
                     className="font-serif text-4xl sm:text-6xl md:text-7xl font-semibold tracking-tight leading-[1.1] max-w-4xl text-ink mb-6"
                   >
-                    Luxury stays, <em className="italic font-medium text-transparent bg-clip-text bg-gradient-to-r from-gold-light via-gold to-gold-deep filter drop-shadow-[0_0_15px_rgba(201,162,78,0.2)]">curated </em> for unforgettable escapes.
+                    Luxury stays, <em className="italic font-medium text-transparent bg-clip-text bg-gradient-to-r from-gold-light via-gold to-gold-deep filter drop-shadow-[0_0_15px_rgba(201,162,78,0.2)]">curated</em> for unforgettable escapes.
                   </motion.h1>
 
                   {/* Subtext */}
