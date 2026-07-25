@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { X, MapPin, Users, Sparkles, Send, CheckCircle2, AlertTriangle, MessageCircle, ChevronLeft, ChevronRight, Calendar, User, Mail, Phone, MessageSquare, Info, Play, Video } from "lucide-react";
+import { X, MapPin, Users, Sparkles, Send, CheckCircle2, AlertTriangle, MessageCircle, ChevronLeft, ChevronRight, Calendar, User, Mail, Phone, MessageSquare, Info, Play, Video, ExternalLink } from "lucide-react";
 import { Property } from "../types";
 import { motion, AnimatePresence } from "motion/react";
-import { parseMediaList, parseAmenities } from "../utils/mediaUtils";
+import { parseMediaList, parseAmenities, getMapUrls } from "../utils/mediaUtils";
 
 interface PropertyDetailModalProps {
   property: Property;
@@ -82,6 +82,9 @@ export default function PropertyDetailModal({
   const allAmenities = property.amenities && property.amenities.length > 0 
     ? property.amenities 
     : parseAmenities(property);
+
+  // Determine Google Map links for Location section using robust utility
+  const { embedSrc, externalMapLink } = getMapUrls(property);
 
   const handleNextImage = (e?: React.MouseEvent) => {
     if (e) {
@@ -440,6 +443,41 @@ export default function PropertyDetailModal({
                 <p className="text-xs text-muted-gold leading-relaxed">
                   {property.desc}
                 </p>
+              </div>
+
+              {/* Property Map & Neighborhood Location */}
+              <div>
+                <div className="flex items-center justify-between mb-2.5">
+                  <h4 className="text-[10px] uppercase font-bold tracking-widest text-gold-light flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-gold" />
+                    Property Location & Map
+                  </h4>
+                  {externalMapLink && (
+                    <a
+                      href={externalMapLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] font-semibold text-gold hover:text-gold-light flex items-center gap-1 underline decoration-gold/40 hover:decoration-gold transition-colors"
+                    >
+                      <span>Open in Google Maps</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+                <div className="relative w-full h-48 md:h-56 rounded-2xl overflow-hidden border border-line/80 bg-black/50 shadow-inner group">
+                  <iframe
+                    src={embedSrc}
+                    title={`${property.title} location map`}
+                    className="w-full h-full border-0 filter contrast-105"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                  <div className="absolute bottom-2.5 left-2.5 pointer-events-none bg-black/85 backdrop-blur-md border border-line px-3 py-1.5 rounded-xl text-[10px] font-medium text-muted-gold flex items-center gap-1.5 shadow-lg">
+                    <MapPin className="w-3.5 h-3.5 text-gold shrink-0 animate-bounce" />
+                    <span className="truncate max-w-[200px] sm:max-w-[280px] font-semibold text-ink">{property.city}, Pakistan</span>
+                  </div>
+                </div>
               </div>
 
               {/* Divider */}

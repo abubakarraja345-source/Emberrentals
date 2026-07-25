@@ -75,6 +75,13 @@ export default function SheetHelpModal({ isOpen, onClose }: SheetHelpModalProps)
       required: false,
       example: "Breathtaking floor-to-ceiling city views with bespoke custom interiors, smart automation, and ultra-high-end furnishings.",
       desc: "The descriptive paragraph detailed in comparison tables and search contexts."
+    },
+    {
+      header: "googleMap",
+      fallbacks: "mapUrl, map, googleMaps, mapLink, locationLink",
+      required: false,
+      example: "https://maps.app.goo.gl/xyz or Centaurus Mall Islamabad",
+      desc: "Google Maps share link, location query text, or iframe embed link. Rendered as an interactive map down inside the Property Details modal!"
     }
   ];
 

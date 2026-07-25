@@ -107,7 +107,8 @@ export const FALLBACK_PROPERTIES: Property[] = [
     amenity2: "Smart TV",
     city: "Islamabad",
     type: "Apartment",
-    maxGuests: 2
+    maxGuests: 2,
+    mapUrl: "https://maps.app.goo.gl/CentaurusMallIslamabad"
   },
   {
     id: "2",
@@ -124,7 +125,8 @@ export const FALLBACK_PROPERTIES: Property[] = [
     amenity2: "Modern Kitchen",
     city: "Rawalpindi",
     type: "Apartment",
-    maxGuests: 4
+    maxGuests: 4,
+    mapUrl: "https://maps.app.goo.gl/BahriaTownRawalpindi"
   },
   {
     id: "3",
@@ -141,7 +143,8 @@ export const FALLBACK_PROPERTIES: Property[] = [
     amenity2: "Butler Service",
     city: "Lahore",
     type: "Apartment",
-    maxGuests: 6
+    maxGuests: 6,
+    mapUrl: "https://maps.app.goo.gl/GaddafiStadiumLahore"
   },
   {
     id: "4",
@@ -158,7 +161,8 @@ export const FALLBACK_PROPERTIES: Property[] = [
     amenity2: "Designer Lounge",
     city: "Islamabad",
     type: "Penthouse",
-    maxGuests: 4
+    maxGuests: 4,
+    mapUrl: "https://maps.app.goo.gl/F10MarkazIslamabad"
   },
   {
     id: "5",
@@ -175,7 +179,8 @@ export const FALLBACK_PROPERTIES: Property[] = [
     amenity2: "Sea View",
     city: "Karachi",
     type: "Penthouse",
-    maxGuests: 5
+    maxGuests: 5,
+    mapUrl: "https://maps.app.goo.gl/CliftonBeachKarachi"
   },
   {
     id: "6",
@@ -192,7 +197,8 @@ export const FALLBACK_PROPERTIES: Property[] = [
     amenity2: "BBQ Setup",
     city: "Murree",
     type: "Resort",
-    maxGuests: 8
+    maxGuests: 8,
+    mapUrl: "https://maps.app.goo.gl/MallRoadMurree"
   },
   {
     id: "7",
@@ -209,7 +215,8 @@ export const FALLBACK_PROPERTIES: Property[] = [
     amenity2: "Heating Spa",
     city: "Nathia Gali",
     type: "Glamp",
-    maxGuests: 2
+    maxGuests: 2,
+    mapUrl: "https://maps.app.goo.gl/NathiaGaliClub"
   },
   {
     id: "8",
@@ -226,7 +233,8 @@ export const FALLBACK_PROPERTIES: Property[] = [
     amenity2: "Private BBQ",
     city: "Rawalpindi",
     type: "Farmhouse",
-    maxGuests: 12
+    maxGuests: 12,
+    mapUrl: "https://maps.app.goo.gl/ChakShahzadIslamabad"
   },
   {
     id: "9",
@@ -243,7 +251,8 @@ export const FALLBACK_PROPERTIES: Property[] = [
     amenity2: "24/7 Butler",
     city: "Islamabad",
     type: "Guest House",
-    maxGuests: 4
+    maxGuests: 4,
+    mapUrl: "https://maps.app.goo.gl/F6MarkazIslamabad"
   },
   {
     id: "10",
@@ -260,7 +269,8 @@ export const FALLBACK_PROPERTIES: Property[] = [
     amenity2: "Secured Lounge",
     city: "Lahore",
     type: "Guest House",
-    maxGuests: 2
+    maxGuests: 2,
+    mapUrl: "https://maps.app.goo.gl/GulbergLahore"
   }
 ];
 

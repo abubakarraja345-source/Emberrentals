@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, MessageCircle, MapPin, Users, Sparkles, ArrowLeftRight, Share2, Play, Video } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageCircle, MapPin, Users, Sparkles, ArrowLeftRight, Share2, Play, Video, X } from "lucide-react";
 import { Property } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import PropertyDetailModal from "./PropertyDetailModal";
-import { parseMediaList, parseAmenities } from "../utils/mediaUtils";
+import { parseMediaList, parseAmenities, getMapUrls } from "../utils/mediaUtils";
 
 interface PropertyCardProps {
   property: Property;
@@ -25,6 +25,9 @@ export default function PropertyCard({
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [copied, setCopied] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+
+  const { embedSrc } = getMapUrls(property);
 
   // Parse media list (images and videos)
   const mediaItems = parseMediaList(

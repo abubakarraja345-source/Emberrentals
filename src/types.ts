@@ -12,6 +12,7 @@ export interface Property {
   city: string;
   type: string; // e.g. Apartment, Penthouse, Resort, Glamp, Farmhouse, Guest House
   maxGuests: number; // Number of guests supported
+  mapUrl?: string; // Google Map share link, query, or iframe embed link
 }
 
 export interface Category {

@@ -129,6 +129,32 @@ export default function App() {
             // Parse amenities
             const amenitiesList = parseAmenities(row);
             
+            // Parse Google Map link or iframe embed code with smart detection
+            let mapUrl = "";
+            const specificMapKeys = ["googlemap", "googlemaps", "mapurl", "maplink", "googlemaplink", "googlemapurl", "map", "maps", "gmap", "gmaps", "embed", "mapembed", "iframe", "locationmap", "mapshare", "sharemap"];
+            
+            // Step 1: First check if any cell value in the row contains an iframe tag or google maps URL
+            for (const key of Object.keys(row)) {
+              const val = String(row[key] || "").trim();
+              if (val.includes("<iframe") || val.includes("&lt;iframe") || val.includes("google.com/maps") || val.includes("maps.app.goo.gl") || val.includes("output=embed") || val.includes("embed?pb=")) {
+                mapUrl = val;
+                break;
+              }
+            }
+
+            // Step 2: If not found by content, check explicit map column names
+            if (!mapUrl) {
+              for (const key of Object.keys(row)) {
+                const k = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+                if (specificMapKeys.includes(k)) {
+                  if (row[key] && String(row[key]).trim().length > 0) {
+                    mapUrl = String(row[key]).trim();
+                    break;
+                  }
+                }
+              }
+            }
+
             // Parse price string to number for range operations if possible
             let pricePerNight = 30000;
             const parsedPrice = parseInt(price.replace(/[^0-9]/g, ""), 10);
@@ -162,7 +188,8 @@ export default function App() {
               amenities: amenitiesList,
               city,
               type,
-              maxGuests
+              maxGuests,
+              mapUrl: mapUrl ? String(mapUrl).trim() : undefined
             };
           });
 

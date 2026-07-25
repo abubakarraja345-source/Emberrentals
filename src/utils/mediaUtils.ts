@@ -207,3 +207,76 @@ export function parseAmenities(row: any): string[] {
 
   return unique;
 }
+
+/**
+ * Resolves Google Map embed source and external link from property data, handling iframe embed strings, direct Google Maps URLs, and coordinate fallbacks.
+ */
+export function getMapUrls(property: any): { embedSrc: string; externalMapLink: string } {
+  const rawMapUrl = String(property?.mapUrl || property?.googleMap || property?.map || "").trim();
+  let embedSrc = "";
+  let externalMapLink = "";
+
+  // Helper to extract URL from iframe string (handling both quotes and HTML entities)
+  const extractIframeSrc = (str: string) => {
+    const match = str.match(/src=["']?([^"'\s>]+)["']?/i) || str.match(/src=&quot;([^&]+)&quot;/i);
+    return match ? match[1] : null;
+  };
+
+  if (rawMapUrl.includes("<iframe") || rawMapUrl.includes("&lt;iframe")) {
+    const extracted = extractIframeSrc(rawMapUrl);
+    if (extracted) {
+      embedSrc = extracted;
+      externalMapLink = extracted;
+    }
+  } else if (rawMapUrl.includes("google.com/maps/embed") || rawMapUrl.includes("output=embed") || rawMapUrl.includes("embed?pb=")) {
+    embedSrc = rawMapUrl;
+    externalMapLink = rawMapUrl.replace("&output=embed", "").replace("output=embed", "");
+  } else if (rawMapUrl.startsWith("http://") || rawMapUrl.startsWith("https://")) {
+    externalMapLink = rawMapUrl;
+    
+    // Attempt to extract coordinates or place name from the URL string
+    const coordMatch = rawMapUrl.match(/(-?\d{1,2}\.\d{3,}),\s*(-?\d{1,3}\.\d{3,})/);
+    const placeMatch = rawMapUrl.match(/\/place\/([^/@?]+)/);
+    const searchMatch = rawMapUrl.match(/\/search\/([^/@?]+)/);
+    
+    let queryParam = "";
+    try {
+      const urlObj = new URL(rawMapUrl);
+      queryParam = urlObj.searchParams.get("q") || urlObj.searchParams.get("query") || urlObj.searchParams.get("ll") || "";
+    } catch (e) {}
+
+    if (coordMatch) {
+      const coords = `${coordMatch[1]},${coordMatch[2]}`;
+      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(coords)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+    } else if (placeMatch && placeMatch[1]) {
+      const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
+      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(placeName)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    } else if (searchMatch && searchMatch[1]) {
+      const searchTerm = decodeURIComponent(searchMatch[1].replace(/\+/g, " "));
+      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(searchTerm)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    } else if (queryParam) {
+      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(queryParam)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    } else {
+      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(rawMapUrl)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    }
+  } else if (rawMapUrl.length > 0) {
+    const query = rawMapUrl;
+    const coordMatch = query.match(/^(-?\d{1,2}\.\d{3,}),\s*(-?\d{1,3}\.\d{3,})$/);
+    if (coordMatch) {
+      externalMapLink = `https://www.google.com/maps/search/?api=1&query=${coordMatch[1]},${coordMatch[2]}`;
+      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(`${coordMatch[1]},${coordMatch[2]}`)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+    } else {
+      externalMapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    }
+  } else {
+    const title = property?.title || "Property";
+    const city = property?.city || "Pakistan";
+    const query = `${title}, ${city}, Pakistan`;
+    externalMapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+  }
+
+  return { embedSrc, externalMapLink };
+}
+
