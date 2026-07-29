@@ -32,7 +32,7 @@ export default function Footer({ setActiveTab }: FooterProps) {
             </div>
           </div>
           <p className="text-sm text-muted-gold leading-relaxed max-w-xs mt-2">
-            Pakistan's finest selection of luxury apartments, penthouses, resorts, glamps, and farmhouses — handpicked for unforgettable stays and five-star hospitality.
+            Pakistan's finest selection of luxury apartments, penthouses, resorts, glamps, and farmhouses handpicked for unforgettable stays and five-star hospitality.
           </p>
           <div className="flex items-center gap-3 mt-2">
             <a
