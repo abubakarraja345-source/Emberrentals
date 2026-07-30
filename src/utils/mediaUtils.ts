@@ -209,72 +209,137 @@ export function parseAmenities(row: any): string[] {
 }
 
 /**
- * Resolves Google Map embed source and external link from property data, handling iframe embed strings, direct Google Maps URLs, and coordinate fallbacks.
+ * Resolves Google Map embed source and external link from property data,
+ * handling iframe embed strings, direct Google Maps URLs, share links, coordinates, and place names.
+ * Safely strips prefix label text (e.g. "Location*https://maps.app.goo.gl/...") so Google Maps receives valid queries.
  */
 export function getMapUrls(property: any): { embedSrc: string; externalMapLink: string } {
-  const rawMapUrl = String(property?.mapUrl || property?.googleMap || property?.map || "").trim();
+  let raw = String(
+    property?.mapUrl || 
+    property?.googleMap || 
+    property?.map || 
+    property?.locationLink || 
+    property?.location || 
+    property?.address ||
+    ""
+  ).trim();
+
   let embedSrc = "";
   let externalMapLink = "";
 
-  // Helper to extract URL from iframe string (handling both quotes and HTML entities)
-  const extractIframeSrc = (str: string) => {
-    const match = str.match(/src=["']?([^"'\s>]+)["']?/i) || str.match(/src=&quot;([^&]+)&quot;/i);
-    return match ? match[1] : null;
+  // 1. If raw contains an iframe tag or entity, extract the src attribute
+  if (raw.includes("<iframe") || raw.includes("&lt;iframe")) {
+    const decoded = raw
+      .replace(/&quot;/g, '"')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&');
+    const match = decoded.match(/src=["']([^"']+)["']/i) || decoded.match(/src=([^\s>]+)/i);
+    if (match && match[1]) {
+      raw = match[1];
+    }
+  }
+
+  // 2. Extract HTTP/HTTPS URL if present anywhere in raw (e.g. "Location*https://maps.app.goo.gl/...")
+  const urlMatch = raw.match(/(https?:\/\/[^\s"'<>]+)/i);
+  let extractedUrl = "";
+  if (urlMatch && urlMatch[1]) {
+    // Strip trailing markdown symbols, asterisks, or quotes
+    extractedUrl = urlMatch[1].replace(/[)*_>"]+$/, "");
+  }
+
+  // Helper: extract place name from Google Maps URL or pb string (e.g. !2sGreen%20City%2C%20Lahore)
+  const extractPlaceFromPbOrUrl = (str: string): string | null => {
+    const pbPlaceMatch = str.match(/!2s([^!&]+)/);
+    if (pbPlaceMatch && pbPlaceMatch[1]) {
+      try {
+        return decodeURIComponent(pbPlaceMatch[1].replace(/\+/g, " "));
+      } catch (e) {}
+    }
+    const placeMatch = str.match(/\/place\/([^/@?]+)/);
+    if (placeMatch && placeMatch[1]) {
+      try {
+        return decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
+      } catch (e) {}
+    }
+    const searchMatch = str.match(/\/search\/([^/@?]+)/);
+    if (searchMatch && searchMatch[1]) {
+      try {
+        return decodeURIComponent(searchMatch[1].replace(/\+/g, " "));
+      } catch (e) {}
+    }
+    return null;
   };
 
-  if (rawMapUrl.includes("<iframe") || rawMapUrl.includes("&lt;iframe")) {
-    const extracted = extractIframeSrc(rawMapUrl);
-    if (extracted) {
-      embedSrc = extracted;
-      externalMapLink = extracted;
+  // Helper: extract lat/lng coordinates
+  const extractCoords = (str: string): { lat: string; lng: string } | null => {
+    const pbCoordMatch = str.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/) || str.match(/!4d(-?\d+\.\d+)!3d(-?\d+\.\d+)/);
+    if (pbCoordMatch) {
+      if (str.includes("!3d" + pbCoordMatch[1])) {
+        return { lat: pbCoordMatch[1], lng: pbCoordMatch[2] };
+      } else {
+        return { lat: pbCoordMatch[2], lng: pbCoordMatch[1] };
+      }
     }
-  } else if (rawMapUrl.includes("google.com/maps/embed") || rawMapUrl.includes("output=embed") || rawMapUrl.includes("embed?pb=")) {
-    embedSrc = rawMapUrl;
-    externalMapLink = rawMapUrl.replace("&output=embed", "").replace("output=embed", "");
-  } else if (rawMapUrl.startsWith("http://") || rawMapUrl.startsWith("https://")) {
-    externalMapLink = rawMapUrl;
-    
-    // Attempt to extract coordinates or place name from the URL string
-    const coordMatch = rawMapUrl.match(/(-?\d{1,2}\.\d{3,}),\s*(-?\d{1,3}\.\d{3,})/);
-    const placeMatch = rawMapUrl.match(/\/place\/([^/@?]+)/);
-    const searchMatch = rawMapUrl.match(/\/search\/([^/@?]+)/);
-    
-    let queryParam = "";
-    try {
-      const urlObj = new URL(rawMapUrl);
-      queryParam = urlObj.searchParams.get("q") || urlObj.searchParams.get("query") || urlObj.searchParams.get("ll") || "";
-    } catch (e) {}
+    const viewportMatch = str.match(/@(-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)/);
+    if (viewportMatch) {
+      return { lat: viewportMatch[1], lng: viewportMatch[2] };
+    }
+    const queryCoordMatch = str.match(/[?&](?:q|ll)=(-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)/);
+    if (queryCoordMatch) {
+      return { lat: queryCoordMatch[1], lng: queryCoordMatch[2] };
+    }
+    const textCoordMatch = str.match(/^(-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)$/);
+    if (textCoordMatch) {
+      return { lat: textCoordMatch[1], lng: textCoordMatch[2] };
+    }
+    return null;
+  };
 
-    if (coordMatch) {
-      const coords = `${coordMatch[1]},${coordMatch[2]}`;
-      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(coords)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
-    } else if (placeMatch && placeMatch[1]) {
-      const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
+  if (extractedUrl) {
+    externalMapLink = extractedUrl;
+
+    const coords = extractCoords(extractedUrl);
+    const placeName = extractPlaceFromPbOrUrl(extractedUrl);
+
+    if (extractedUrl.includes("google.com/maps/embed") || extractedUrl.includes("output=embed") || extractedUrl.includes("embed?pb=")) {
+      embedSrc = extractedUrl;
+      if (placeName) {
+        externalMapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}`;
+      } else if (coords) {
+        externalMapLink = `https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lng}`;
+      }
+    } else if (coords) {
+      embedSrc = `https://maps.google.com/maps?q=${coords.lat},${coords.lng}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+    } else if (placeName) {
       embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(placeName)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-    } else if (searchMatch && searchMatch[1]) {
-      const searchTerm = decodeURIComponent(searchMatch[1].replace(/\+/g, " "));
-      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(searchTerm)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-    } else if (queryParam) {
-      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(queryParam)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
     } else {
-      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(rawMapUrl)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-    }
-  } else if (rawMapUrl.length > 0) {
-    const query = rawMapUrl;
-    const coordMatch = query.match(/^(-?\d{1,2}\.\d{3,}),\s*(-?\d{1,3}\.\d{3,})$/);
-    if (coordMatch) {
-      externalMapLink = `https://www.google.com/maps/search/?api=1&query=${coordMatch[1]},${coordMatch[2]}`;
-      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(`${coordMatch[1]},${coordMatch[2]}`)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
-    } else {
-      externalMapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+      // For short links like maps.app.goo.gl/...
+      // Construct a clean, reliable embed query using property title + city
+      const searchTarget = `${property?.title || "Property"}, ${property?.city || "Pakistan"}, Pakistan`;
+      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(searchTarget)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
     }
   } else {
-    const title = property?.title || "Property";
-    const city = property?.city || "Pakistan";
-    const query = `${title}, ${city}, Pakistan`;
-    externalMapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-    embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+    // Clean leading labels like "Location*", "Location:", "Address:", etc.
+    const cleanText = raw
+      .replace(/^[*_\s]*(location|map|google\s*map|address|pin|place)[:*\s_-]*/i, "")
+      .replace(/[*_]+$/g, "")
+      .trim();
+
+    if (cleanText.length > 0) {
+      const coords = extractCoords(cleanText);
+      if (coords) {
+        externalMapLink = `https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lng}`;
+        embedSrc = `https://maps.google.com/maps?q=${coords.lat},${coords.lng}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+      } else {
+        externalMapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cleanText)}`;
+        embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(cleanText)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+      }
+    } else {
+      const fallbackSearch = `${property?.title || "Property"}, ${property?.city || "Pakistan"}, Pakistan`;
+      externalMapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fallbackSearch)}`;
+      embedSrc = `https://maps.google.com/maps?q=${encodeURIComponent(fallbackSearch)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+    }
   }
 
   return { embedSrc, externalMapLink };
