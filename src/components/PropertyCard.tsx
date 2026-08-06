@@ -84,7 +84,7 @@ export default function PropertyCard({
     
     msg += `\nPlease let me know the availability of this stay. Thank you!`;
     
-    const whatsappUrl = `https://wa.me/923052367555?text=${encodeURIComponent(msg)}`;
+    const whatsappUrl = `https://wa.me/923359176409?text=${encodeURIComponent(msg)}`;
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
@@ -136,10 +136,31 @@ export default function PropertyCard({
         onClick={() => setIsDetailOpen(true)}
         className="group bg-charcoal-light border border-line hover:border-line-strong rounded-2xl overflow-hidden shadow-xl hover:shadow-[0_20px_45px_rgba(0,0,0,0.6),0_0_0_1px_rgba(232,206,143,0.15)] flex flex-col h-full transition-all duration-300 cursor-pointer"
       >
-      {/* Media / Images & Videos Carousel */}
+      {/* Media / Images & Videos / Map Container */}
       <div className="relative aspect-[4/3] overflow-hidden bg-black/40">
         <div className="absolute inset-0">
-          {activeMedia.isVideo ? (
+          {showMap ? (
+            <div className="w-full h-full bg-black relative" onClick={(e) => e.stopPropagation()}>
+              <iframe
+                src={embedSrc}
+                title={`${property.title} location map`}
+                className="w-full h-full border-0 filter contrast-105"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMap(false);
+                }}
+                className="absolute top-3 right-3 bg-black/80 hover:bg-black text-gold-light p-1.5 rounded-full border border-gold/40 shadow-lg z-20 cursor-pointer"
+                title="Back to photos"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : activeMedia.isVideo ? (
             <div className="w-full h-full bg-black relative flex items-center justify-center">
               {activeMedia.embedUrl ? (
                 <iframe
@@ -182,8 +203,8 @@ export default function PropertyCard({
           )}
         </div>
 
-        {/* Dynamic Navigation Arrows */}
-        {mediaItems.length > 1 && (
+        {/* Dynamic Navigation Arrows (Only shown when not in map view) */}
+        {!showMap && mediaItems.length > 1 && (
           <>
             <button
               onClick={handlePrevImage}
@@ -203,7 +224,7 @@ export default function PropertyCard({
         )}
 
         {/* Carousel Indicator Dots */}
-        {mediaItems.length > 1 && (
+        {!showMap && mediaItems.length > 1 && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
             {mediaItems.map((item, idx) => (
               <span
@@ -220,12 +241,29 @@ export default function PropertyCard({
           </div>
         )}
 
-        {/* City and Type Badges */}
+        {/* City, Type & Map Badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
-          <span className="backdrop-blur-md bg-black/50 border border-line text-gold-light text-[10px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1">
-            <MapPin className="w-3 h-3 text-gold" />
-            {property.city}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="backdrop-blur-md bg-black/50 border border-line text-gold-light text-[10px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1">
+              <MapPin className="w-3 h-3 text-gold" />
+              {property.city}
+            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMap(!showMap);
+              }}
+              className={`backdrop-blur-md border text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1 transition-all shadow-md cursor-pointer ${
+                showMap 
+                  ? "bg-gold text-charcoal border-gold" 
+                  : "bg-black/60 hover:bg-black text-gold-light border-gold/40 hover:border-gold"
+              }`}
+              title={showMap ? "View Photos" : "View Map"}
+            >
+              <MapPin className="w-3 h-3" />
+              <span>{showMap ? "Photos" : "Map"}</span>
+            </button>
+          </div>
           <span className="backdrop-blur-md bg-gold/80 border border-gold text-charcoal text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full w-max">
             {property.type}
           </span>

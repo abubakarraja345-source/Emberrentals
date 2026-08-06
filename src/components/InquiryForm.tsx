@@ -82,7 +82,7 @@ export default function InquiryForm({ properties, prefilledProperty = "" }: Inqu
     setStatus({ type: null, text: "" });
 
     // Web3Forms Access Key
-    const accessKey = "14c583bd-7044-4407-a5f1-a69ef6c85ecf";
+    const accessKey = "ea284f84-14e6-4467-a39f-421a353fdbe6";
 
     const formData = new FormData();
     formData.append("access_key", accessKey);
@@ -141,7 +141,7 @@ export default function InquiryForm({ properties, prefilledProperty = "" }: Inqu
     if (message) msg += `💬 *Message:* ${message}\n`;
     msg += `\nPlease guide me. Thank you!`;
 
-    window.open(`https://wa.me/923052367555?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/923359176409?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
   };
 
   return (

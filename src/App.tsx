@@ -970,7 +970,8 @@ export default function App() {
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
-                      {/* <button
+                       {/*
+                      <button
                         onClick={() => setIsSheetHelpOpen(true)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gold/30 bg-gold/5 text-gold hover:bg-gold/10 hover:border-gold/50 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer"
                         title="View Google Sheets formatting instructions"
@@ -978,6 +979,7 @@ export default function App() {
                         <HelpCircle className="w-3.5 h-3.5" />
                         Sheet Setup Guide
                       </button>
+                      */}
 
                       {/* Clear Filters CTA */}
                       {(selectedCity !== "all" || selectedType !== "all" || selectedGuestsRange !== "any" || searchQuery || sortBy !== "default") && (
@@ -1322,8 +1324,8 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 text-left">
                   <div className="bg-charcoal-light border border-line p-5 rounded-2xl">
                     <h5 className="font-serif text-base font-semibold text-ink mb-2">Concierge Phone</h5>
-                    <a href="https://wa.me/923052367555" className="text-xs text-gold hover:text-gold-light font-mono block">
-                      +92 305 2367555
+                    <a href="https://wa.me/923359176409" className="text-xs text-gold hover:text-gold-light font-mono block">
+                      +92 335 9176409
                     </a>
                   </div>
                   <div className="bg-charcoal-light border border-line p-5 rounded-2xl">
@@ -1458,7 +1460,7 @@ export default function App() {
       {/* Persistent WhatsApp Floating Action Button (FAB) */}
       <div className="fixed bottom-6 right-6 z-40 md:bottom-8 md:right-8 flex flex-col gap-3 items-end pointer-events-none">
         <a
-          href="https://wa.me/923052367555?text=Hello%20Ember%20Rentals%2C%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay."
+          href="https://wa.me/923359176409?text=Hello%20Ember%20Rentals%2C%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay."
           target="_blank"
           rel="noopener noreferrer"
           className="pointer-events-auto group relative flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-tr from-[#128C7E] to-[#25D366] text-white shadow-[0_8px_32px_rgba(37,211,102,0.3),0_0_0_1px_rgba(232,206,143,0.15)] border border-white/10 transition-all duration-300 hover:scale-110 active:scale-95 hover:brightness-110"

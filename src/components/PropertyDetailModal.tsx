@@ -176,7 +176,7 @@ export default function PropertyDetailModal({
     if (message) msg += `💬 *Message:* ${message}\n`;
     msg += `\nPlease guide me on availability. Thank you!`;
 
-    const url = `https://wa.me/923052367555?text=${encodeURIComponent(msg)}`;
+    const url = `https://wa.me/923359176409?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
 

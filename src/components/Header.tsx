@@ -86,13 +86,13 @@ export default function Header({ activeTab, setActiveTab, onBookStayClick }: Hea
         {/* Desktop Action Buttons */}
         <div className="hidden md:flex items-center gap-4">
           <a
-            href="https://wa.me/923052367555"
+            href="https://wa.me/923359176409"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-xs border border-line hover:border-gold-light/50 px-4 py-2.5 rounded-full text-ink hover:text-gold-light bg-white/[0.02] transition-all"
           >
             <Phone className="w-3 h-3 text-gold" />
-            <span>+92 305 2367555</span>
+            <span>+92 335 9176409</span>
           </a>
           <button
             onClick={onBookStayClick}
@@ -129,13 +129,13 @@ export default function Header({ activeTab, setActiveTab, onBookStayClick }: Hea
           ))}
           <div className="border-t border-line mt-2 pt-3 pb-1 flex flex-col gap-2">
             <a
-              href="https://wa.me/923052367555"
+              href="https://wa.me/923359176409"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 text-xs border border-line py-3 rounded-full text-ink bg-white/[0.02]"
             >
               <Phone className="w-4 h-4 text-gold" />
-              <span>+92 305 2367555</span>
+              <span>+92 335 9176409</span>
             </a>
             <button
               onClick={() => {

@@ -150,7 +150,7 @@ export function CompareModal({
     
     msg += `\nPlease let me know the availability of this stay. Thank you!`;
     
-    const whatsappUrl = `https://wa.me/923052367555?text=${encodeURIComponent(msg)}`;
+    const whatsappUrl = `https://wa.me/923359176409?text=${encodeURIComponent(msg)}`;
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 

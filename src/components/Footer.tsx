@@ -32,7 +32,7 @@ export default function Footer({ setActiveTab }: FooterProps) {
             </div>
           </div>
           <p className="text-sm text-muted-gold leading-relaxed max-w-xs mt-2">
-            Pakistan's finest selection of luxury apartments, penthouses, resorts, glamps, and farmhouses handpicked for unforgettable stays and five-star hospitality.
+            Pakistan's finest selection of luxury apartments, penthouses, resorts, glamps, and farmhouses — handpicked for unforgettable stays and five-star hospitality.
           </p>
           <div className="flex items-center gap-3 mt-2">
             <a
@@ -45,7 +45,7 @@ export default function Footer({ setActiveTab }: FooterProps) {
               <Instagram className="w-4 h-4" />
             </a>
             <a
-              href="https://wa.me/923052367555"
+              href="https://wa.me/923359176409"
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-muted-gold hover:text-gold-light hover:border-gold-light transition-all bg-white/[0.01]"
@@ -120,12 +120,12 @@ export default function Footer({ setActiveTab }: FooterProps) {
             <li className="flex items-start gap-3">
               <Phone className="w-4 h-4 text-gold flex-shrink-0 mt-1" />
               <a
-                href="https://wa.me/923052367555"
+                href="https://wa.me/923359176409"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gold-light transition-all"
               >
-                +92 305 2367555
+                +92 335 9176409
               </a>
             </li>
             <li className="flex items-start gap-3">
