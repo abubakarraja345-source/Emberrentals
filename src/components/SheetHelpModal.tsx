@@ -195,9 +195,9 @@ export default function SheetHelpModal({ isOpen, onClose }: SheetHelpModalProps)
                 <div className="w-7 h-7 rounded-lg bg-gold/10 border border-gold/30 flex items-center justify-center text-gold font-mono text-xs font-bold mb-3">
                   3
                 </div>
-                <h5 className="text-xs font-bold text-ink uppercase tracking-wider mb-1">Connect API</h5>
+                <h5 className="text-xs font-bold text-ink uppercase tracking-wider mb-1">Connect API (100% Free)</h5>
                 <p className="text-[11px] text-muted-gold leading-relaxed">
-                  Connect your shared sheet URL to <a href="https://sheetbest.com/" target="_blank" rel="noopener noreferrer" className="text-gold-light underline hover:text-gold">Sheetbest</a> or a similar converter to supply the API feed.
+                  Use your free <strong>Google Apps Script Web App URL</strong> (no monthly limits!) or connect via <a href="https://sheetbest.com/" target="_blank" rel="noopener noreferrer" className="text-gold-light underline hover:text-gold">Sheetbest</a>.
                 </p>
               </div>
             </div>

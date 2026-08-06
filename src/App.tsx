@@ -88,8 +88,13 @@ export default function App() {
     const fetchProperties = async () => {
       setLoadingProperties(true);
       try {
-        const sheetUrl = "https://api.sheetbest.com/sheets/d591ec86-b52d-4d32-9163-4e0b05115fa7";
-        const res = await fetch(sheetUrl);
+        const primarySheetUrl = "https://script.google.com/macros/s/AKfycby0WUUeJ8hkF5naXm-SySjdOu0GC6wF_31HAWEn6T2mJ7kkIC6EeHktUMJNguuzbNSD2Q/exec";
+        const fallbackSheetUrl = "https://api.sheetbest.com/sheets/d591ec86-b52d-4d32-9163-4e0b05115fa7";
+        
+        let res = await fetch(primarySheetUrl).catch(() => null);
+        if (!res || !res.ok) {
+          res = await fetch(fallbackSheetUrl);
+        }
         if (!res.ok) throw new Error("Sheet API returned an error status");
         
         const data = await res.json();
@@ -131,18 +136,33 @@ export default function App() {
             
             // Parse Google Map link or iframe embed code with smart detection
             let mapUrl = "";
-            const specificMapKeys = ["googlemap", "googlemaps", "mapurl", "maplink", "googlemaplink", "googlemapurl", "map", "maps", "gmap", "gmaps", "embed", "mapembed", "iframe", "locationmap", "mapshare", "sharemap"];
+            const specificMapKeys = [
+              "googlemap", "googlemaps", "mapurl", "maplink", "googlemaplink", "googlemapurl",
+              "map", "maps", "gmap", "gmaps", "embed", "mapembed", "iframe", "locationmap",
+              "mapshare", "sharemap", "location", "locationlink", "address", "maplocation",
+              "propertylocation", "propertymap", "google", "pin", "loc"
+            ];
             
-            // Step 1: First check if any cell value in the row contains an iframe tag or google maps URL
+            // Step 1: Check if any cell value in the row contains an iframe tag or google maps URL
             for (const key of Object.keys(row)) {
               const val = String(row[key] || "").trim();
-              if (val.includes("<iframe") || val.includes("&lt;iframe") || val.includes("google.com/maps") || val.includes("maps.app.goo.gl") || val.includes("output=embed") || val.includes("embed?pb=")) {
+              if (
+                val.includes("<iframe") || 
+                val.includes("&lt;iframe") || 
+                val.includes("google.com/maps") || 
+                val.includes("maps.google.com") || 
+                val.includes("maps.app.goo.gl") || 
+                val.includes("goo.gl/maps") || 
+                val.includes("output=embed") || 
+                val.includes("embed?pb=") || 
+                val.includes("pb=!1m")
+              ) {
                 mapUrl = val;
                 break;
               }
             }
 
-            // Step 2: If not found by content, check explicit map column names
+            // Step 2: If not found by content match, check explicit map column names
             if (!mapUrl) {
               for (const key of Object.keys(row)) {
                 const k = key.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -950,7 +970,14 @@ export default function App() {
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
-                      
+                      <button
+                        onClick={() => setIsSheetHelpOpen(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gold/30 bg-gold/5 text-gold hover:bg-gold/10 hover:border-gold/50 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                        title="View Google Sheets formatting instructions"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        Sheet Setup Guide
+                      </button>
 
                       {/* Clear Filters CTA */}
                       {(selectedCity !== "all" || selectedType !== "all" || selectedGuestsRange !== "any" || searchQuery || sortBy !== "default") && (
