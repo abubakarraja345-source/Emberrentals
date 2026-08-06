@@ -970,7 +970,7 @@ export default function App() {
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <button
+                      {/* <button
                         onClick={() => setIsSheetHelpOpen(true)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gold/30 bg-gold/5 text-gold hover:bg-gold/10 hover:border-gold/50 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer"
                         title="View Google Sheets formatting instructions"
